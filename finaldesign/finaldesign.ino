@@ -59,6 +59,9 @@ void loop() {
   colorDetected      = digitalRead(colorDetector);
   leftTapeDetected   = digitalRead(leftTapeAvoiding);
   rightTapeDetected  = digitalRead(rightTapeAvoiding);
+
+  analogWrite(leftMotor,  255);
+  analogWrite(rightMotor, 255);
   
   if (leftSplitDetected == 1 && rightSplitDetected == 1) {
     splitDetected = 1;
@@ -77,15 +80,40 @@ void loop() {
       splitDetectedRoutine(); 
     }
 
+    tapeFollow();
   
 }
 
-void tape_follow() {
+void tapeFollow() {
   Serial.println("Following tape.");
 }
 
-void tape_avoid() {
+void tapeAvoid() {
   Serial.println("Avoiding tape.");
+  if (leftTapeAvoiding == 1)
+  {
+    leftTapeAvoid();
+  } if (rightTapeAvoiding == 1) {
+    rightTapeAvoid();
+  }
+}
+
+void leftTapeAvoid() {
+  Serial.println("LeftTapeAvoid routine started.");
+  while (leftTapeAvoiding == 1)
+  {
+    analogWrite(leftMotor, 128);
+  }
+  Serial.println("LeftTapeAvoid finished");
+}
+
+void rightTapeAvoid() {
+  Serial.println("RightTapeAvoid routine started.");
+  while (rightTapeAvoiding == 1) 
+  {
+    analogWrite(rightMotor, 128);
+  }
+  Serial.println("RightTapeAvoid finished");
 }
 
 void colorDetectedRoutine() {
