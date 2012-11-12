@@ -34,6 +34,7 @@ int leftTapeDetected         = 0;
 int rightTapeDetected        = 0;
 int leftSplitDetected        = 0;
 int rightSplitDetected       = 0;
+int colorDetectedState       = 0;
 
 
 
@@ -47,6 +48,10 @@ const int leftSplitDetector  = 5;
 const int colorDetector      = 6;
 
 
+// Color codes
+// Black = 0
+// Gray  = 1
+// White = 2
 
 
 void setup() {
@@ -56,12 +61,11 @@ void setup() {
 void loop() {
   leftSplitDetected  = digitalRead(leftSplitDetector);
   rightSplitDetected = digitalRead(rightSplitDetector);
-  colorDetected      = digitalRead(colorDetector);
+  //colorDetected      = digitalRead(colorDetector);
   leftTapeDetected   = digitalRead(leftTapeAvoiding);
   rightTapeDetected  = digitalRead(rightTapeAvoiding);
 
-  analogWrite(leftMotor,  255);
-  analogWrite(rightMotor, 255);
+
   
   if (leftSplitDetected == 1 && rightSplitDetected == 1) {
     splitDetected = 1;
@@ -80,8 +84,8 @@ void loop() {
       splitDetectedRoutine(); 
     }
 
-    tapeFollow();
-  
+    tapeAvoid();
+    delay(50);
 }
 
 void tapeFollow() {
@@ -96,13 +100,16 @@ void tapeAvoid() {
   } if (rightTapeAvoiding == 1) {
     rightTapeAvoid();
   }
+  analogWrite(leftMotor,  128);
+  analogWrite(rightMotor, 128);
 }
 
 void leftTapeAvoid() {
   Serial.println("LeftTapeAvoid routine started.");
   while (leftTapeAvoiding == 1)
   {
-    analogWrite(leftMotor, 128);
+    analogWrite(leftMotor,   32);
+    analogWrite(rightMotor, 128);
   }
   Serial.println("LeftTapeAvoid finished");
 }
@@ -111,15 +118,36 @@ void rightTapeAvoid() {
   Serial.println("RightTapeAvoid routine started.");
   while (rightTapeAvoiding == 1) 
   {
-    analogWrite(rightMotor, 128);
+    analogWrite(rightMotor, 32);
+    analogWrite(leftMotor, 128);
   }
   Serial.println("RightTapeAvoid finished");
 }
 
 void colorDetectedRoutine() {
-  Serial.println("ColorDetectedRoutine started.");
+  // Gray should turn right.
+  Serial.println("ColorDetectedRoutine started. Car should turn right.");
+  analogWrite(leftMotor,   32);
+  analogWrite(rightMotor, 128);
 }
 
 void splitDetectedRoutine() {
-  Serial.println("SplitDetectedRoutine started.");
+  Serial.println("SplitDetectedRoutine started. Car should turn left.");
+  // White turns left.
+  analogWrite(rightMotor, 32);
+  analogWrite(leftMotor, 128);
+}
+
+int colorDetection(); {
+  if (analogRead(colorDetector) < 200 && analogRead(colorDetector) > 100)
+  {
+    colorDetectedState = 1;
+  } else if (analogRead(colorDetector) > 200) 
+  {
+    colorDetectedState = 2;
+  } else
+  {
+    colorDetectedState = 0;
+  }
+  return colorDetectedState;
 }
